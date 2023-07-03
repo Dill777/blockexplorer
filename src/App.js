@@ -21,6 +21,8 @@ const alchemy = new Alchemy(settings);
 
 function App() {
   const [blockNumber, setBlockNumber] = useState();
+  const [walletAddress, setWalletAddress] = useState('');
+  const [walletBalance, setWalletBalance] = useState('');
 
   useEffect(() => {
     async function getBlockNumber() {
@@ -28,9 +30,37 @@ function App() {
     }
 
     getBlockNumber();
-  });
+  }, []);
 
-  return <div className="App">Block Number: {blockNumber}</div>;
+  const handleInputChange = (event) => {
+    setWalletAddress(event.target.value);
+  };
+
+  const getWalletBalance = async () => {
+    try {
+      const balance = await alchemy.core.getBalance(walletAddress);
+      setWalletBalance(balance.toString());
+    } catch (error) {
+      console.error('Error fetching wallet balance:', error);
+    }
+  };
+
+  return (
+    <div className="App">
+      <div>
+        <label htmlFor="walletAddress">Wallet Address: </label>
+        <input
+          id="walletAddress"
+          type="text"
+          value={walletAddress}
+          onChange={handleInputChange}
+        />
+        <button onClick={getWalletBalance}>Get Balance</button>
+      </div>
+      <div>Block Number: {blockNumber}</div>
+      <div>Wallet Balance: {walletBalance} Wei</div>
+    </div>
+  );
 }
 
 export default App;
